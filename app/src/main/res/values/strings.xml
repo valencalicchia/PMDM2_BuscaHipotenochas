@@ -12,14 +12,25 @@
 
     <string name="config_titulo">Dificultad</string>
 
-    <string-array name="config_opciones">
+    <string-array name="config_nombres">
         <item>Principiante</item>
         <item>Amateur</item>
         <item>Avanzado</item>
     </string-array>
 
-    <string name="personaje_titulo">Selecciona un personaje:</string>
+    <integer-array name="config_casillas">
+        <item>8</item>
+        <item>12</item>
+        <item>16</item>
+    </integer-array>
 
+    <integer-array name="config_hipos">
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+    </integer-array>
+
+    <string name="personaje_titulo">Selecciona un personaje:</string>
 
     <string-array name="personaje_opciones">
         <item>Básico</item>

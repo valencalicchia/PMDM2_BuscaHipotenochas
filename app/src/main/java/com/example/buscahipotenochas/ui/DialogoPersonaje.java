@@ -89,4 +89,6 @@ public class DialogoPersonaje {
         return this.seleccionado;
     }
 
+    public int getImagenSeleccionada() {return this.imagen_seleccionada;}
+
 }

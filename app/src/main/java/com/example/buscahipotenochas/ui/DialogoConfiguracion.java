@@ -14,6 +14,7 @@ public class DialogoConfiguracion{
     String[] opciones;
     String seleccionado;
 
+
     public DialogoConfiguracion(Context context, String[] opciones, String seleccionado)
     {
         this.context = context;

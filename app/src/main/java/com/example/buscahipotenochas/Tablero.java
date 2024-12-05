@@ -1,4 +1,4 @@
-import com.example.buscahipotenochas.Configuracion;
+package com.example.buscahipotenochas;
 
 import java.util.Random;
 
@@ -42,12 +42,14 @@ public class Tablero {
         matriz = new int[casillas][casillas];
         Random rnd = new Random();
 
-        while (hipotenochas < 10) {
+        int index = 0;
+
+        while (index < hipotenochas) {
             int x = rnd.nextInt(casillas);
             int y = rnd.nextInt(casillas);
             if (matriz[x][y] != -1) {
                 matriz[x][y] = -1;
-                hipotenochas++;
+                index += 1;
             }
         }
     }
@@ -72,10 +74,10 @@ public class Tablero {
                     matriz[x][y] = contador;
                 }
                 // Quitar comentario para ver la matriz en consola (para debuguear).
-                // System.out.print(matriz[x][y] == -1 ? "B" : matriz[x][y]);
+                System.out.print(matriz[x][y] == -1 ? "B" : matriz[x][y]);
             }
             // Quitar comentario para ver la matriz en consola (para debuguear).
-            // System.out.println("\n");
+            System.out.println("\n");
         }
     }
 
