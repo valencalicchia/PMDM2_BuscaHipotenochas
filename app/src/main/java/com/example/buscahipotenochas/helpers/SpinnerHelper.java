@@ -1,6 +1,8 @@
 package com.example.buscahipotenochas.helpers;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ public class SpinnerHelper extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+
         ViewHolder mViewHolder = new ViewHolder();
         if (convertView == null) {
             LayoutInflater mInflater = (LayoutInflater) mContext.
@@ -45,7 +48,8 @@ public class SpinnerHelper extends ArrayAdapter<String> {
         } else {
             mViewHolder = (ViewHolder) convertView.getTag();
         }
-        //mViewHolder.mFoto.setImageResource(spinnerImages[position]);
+
+        mViewHolder.mFoto.setImageResource(spinnerImages[position]);
         mViewHolder.mNombre.setText(spinnerTitles[position]);
 
         return convertView;

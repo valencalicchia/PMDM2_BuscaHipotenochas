@@ -13,10 +13,10 @@
     <item android:title="@string/menu_config"
         android:id="@+id/menu_config"
         app:showAsAction="never"/>
-    
+
     <item android:title="@string/menu_personaje"
         android:id="@+id/menu_personaje"
-        android:icon="@mipmap/hipo0"
+        android:icon="@drawable/hipo_basico"
         app:showAsAction="always"/>
 
 </menu>

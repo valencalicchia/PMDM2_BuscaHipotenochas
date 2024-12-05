@@ -20,11 +20,23 @@
 
     <string name="personaje_titulo">Selecciona un personaje:</string>
 
+
     <string-array name="personaje_opciones">
-        <item>Normal</item>
-        <item>Flamenca</item>
-        <item>Hola</item>
+        <item>Básico</item>
+        <item>Enfermera</item>
+        <item>Flamenco</item>
+        <item>Flores</item>
+        <item>Matrix</item>
+        <item>Olimpiadas</item>
     </string-array>
 
+    <integer-array name="imagenes">
+        <item>@drawable/hipo_basico</item>
+        <item>@drawable/hipo_enfermer</item>
+        <item>@drawable/hipo_flamenco</item>
+        <item>@drawable/hipo_flores</item>
+        <item>@drawable/hipo_matrix</item>
+        <item>@drawable/hipo_olimpiadas</item>
+    </integer-array>
 
 </resources>

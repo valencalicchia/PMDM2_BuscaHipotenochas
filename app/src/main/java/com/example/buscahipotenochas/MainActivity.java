@@ -1,33 +1,25 @@
 package com.example.buscahipotenochas;
 
-import android.content.res.Resources;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.buscahipotenochas.helpers.SpinnerHelper;
 import com.example.buscahipotenochas.ui.*;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.buscahipotenochas.databinding.ActivityMainBinding;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
-
-    private  boolean isUserInteracting = false;
-
+    MenuItem personajeItem;
     private DialogoInstrucciones di;
     private DialogoPersonaje dp;
     private DialogoConfiguracion dc;
@@ -44,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
         di = new DialogoInstrucciones(MainActivity.this);
 
         String[] configuracion_opciones = getResources().getStringArray(R.array.config_opciones);
@@ -55,14 +45,21 @@ public class MainActivity extends AppCompatActivity {
         personaje_opciones = getResources().getStringArray(R.array.personaje_opciones);
         personaje_seleccionado = personaje_opciones[0];
 
-        spinnerHelper = new SpinnerHelper(MainActivity.this, personaje_opciones, imagenes);
+        TypedArray imagenesArray = getResources().obtainTypedArray(R.array.imagenes);
+        imagenes = new int[imagenesArray.length()];
+        for (int i = 0; i < imagenesArray.length(); i++) {
+            imagenes[i] = imagenesArray.getResourceId(i, -1); // -1 si no encuentra un recurso
+        }
+        imagenesArray.recycle();
 
-        dp = new DialogoPersonaje(MainActivity.this, personaje_opciones, personaje_seleccionado, spinnerHelper);
+        dp = new DialogoPersonaje(MainActivity.this, personaje_opciones, personaje_seleccionado, imagenes);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.app_actionbar, menu);
+        personajeItem = menu.findItem(R.id.menu_personaje);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -91,15 +88,12 @@ public class MainActivity extends AppCompatActivity {
         if(itemId == R.id.menu_personaje)
         {
             View mView = getLayoutInflater().inflate(R.layout.spinner_personaje, null);
-            dp.Show(mView);
+            dp.Show(mView,personajeItem);
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        isUserInteracting = true;
-    }
+
+
 
 }
