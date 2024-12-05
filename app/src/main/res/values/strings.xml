@@ -32,8 +32,7 @@
 
     <string name="personaje_titulo">Selecciona un personaje:</string>
 
-    <string-array name="personaje_opciones">
-        <item>Básico</item>
+    <string-array name="personaje_nombre">
         <item>Enfermera</item>
         <item>Flamenco</item>
         <item>Flores</item>
@@ -41,8 +40,7 @@
         <item>Olimpiadas</item>
     </string-array>
 
-    <integer-array name="imagenes">
-        <item>@drawable/hipo_basico</item>
+    <integer-array name="personajes_imagenes">
         <item>@drawable/hipo_enfermer</item>
         <item>@drawable/hipo_flamenco</item>
         <item>@drawable/hipo_flores</item>

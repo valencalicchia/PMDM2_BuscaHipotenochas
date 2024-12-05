@@ -15,7 +15,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
 
-import com.example.buscahipotenochas.helpers.SpinnerHelper;
+
 import com.example.buscahipotenochas.ui.*;
 
 import androidx.annotation.NonNull;
@@ -31,25 +31,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MenuItem personajeItem;
     Button tiledBoton;
     TableLayout tableLayout;
+    Drawable imagen;
 
     boolean jugando = false;
     int encontradas = 0;
 
-
     private DialogoInstrucciones di;
     private DialogoPersonaje dp;
     private DialogoConfiguracion dc;
-    private SpinnerHelper spinnerHelper;
-
-    String config_seleccionado;
-
-    String personaje_seleccionado;
-    String[] personaje_opciones;
-    int[] imagenes;
-    TypedArray imagenesArray;
 
     List<Configuracion> configuraciones;
     Configuracion configuracion_seleccionada;
+
+    List<Personaje> personajes;
+    Personaje personaje_seleccionado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,37 +54,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         di = new DialogoInstrucciones(MainActivity.this);
 
+        //Carga de configuraciones
         String[] config_nombres = getResources().getStringArray(R.array.config_nombres);
         int[] config_casillas = getResources().getIntArray(R.array.config_casillas);
         int[] config_hipos = getResources().getIntArray(R.array.config_hipos);
-
 
         List<Configuracion> configuraciones = new ArrayList<>();
         for (int i = 0; i < config_nombres.length; i++) {
             configuraciones.add(new Configuracion(config_nombres[i], config_casillas[i], config_hipos[i]));
         }
 
-        config_seleccionado = config_nombres[0];
+        configuracion_seleccionada = configuraciones.get(0);
+        dc = new DialogoConfiguracion(MainActivity.this, configuraciones, configuracion_seleccionada);
 
+        //Carga de personajes
+        String[] personajeNombres = getResources().getStringArray(R.array.personaje_nombre);
+        TypedArray personajeImagenesArray = getResources().obtainTypedArray(R.array.personajes_imagenes);
 
-        dc = new DialogoConfiguracion(MainActivity.this, config_nombres, config_seleccionado);
-
-        personaje_opciones = getResources().getStringArray(R.array.personaje_opciones);
-        personaje_seleccionado = personaje_opciones[0];
-        imagenesArray = getResources().obtainTypedArray(R.array.imagenes);
-        imagenes = new int[imagenesArray.length()];
-        for (int i = 0; i < imagenesArray.length(); i++) {
-            imagenes[i] = imagenesArray.getResourceId(i, -1); // -1 si no encuentra un recurso
+        List<Personaje> personajes = new ArrayList<>();
+        for (int i = 0; i < personajeNombres.length; i++) {
+            int imagenId = personajeImagenesArray.getResourceId(i, -1); // Obtiene el ID de la imagen.
+            personajes.add(new Personaje(personajeNombres[i], imagenId)); // Crea un objeto Personaje.
         }
-        imagenesArray.recycle();
-        dp = new DialogoPersonaje(MainActivity.this, personaje_opciones, personaje_seleccionado, imagenes);
+
+        personajeImagenesArray.recycle();
+        personaje_seleccionado = personajes.get(0);
+        dp = new DialogoPersonaje(MainActivity.this, personajes, personaje_seleccionado);
+
+        rellenaBotones(configuracion_seleccionada.getCasillas());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.app_actionbar, menu);
         personajeItem = menu.findItem(R.id.menu_personaje);
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -98,74 +96,97 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         int itemId = item.getItemId();
 
-        if(itemId == R.id.menu_instrucciones)
-        {
+        if (itemId == R.id.menu_instrucciones) {
             di.Show();
         }
-        if(itemId == R.id.menu_config)
-        {
+        if (itemId == R.id.menu_config) {
             dc.Show();
-
         }
-        if(itemId == R.id.menu_nuevo)
-        {
-            jugando = true;
-            Configuracion confiTemp = new Configuracion("", 8, 10);
-            rellenaBotones(8);
-            tablero = new Tablero(confiTemp);
-            tablero.jugar();
+        if (itemId == R.id.menu_nuevo) {
+            iniciarNuevoJuego();
         }
-        if(itemId == R.id.menu_personaje)
-        {
-            View mView = getLayoutInflater().inflate(R.layout.spinner_personaje, null);
-            dp.Show(mView,personajeItem);
+        if (itemId == R.id.menu_personaje) {
+            dp.Show(personajeItem);
         }
         return super.onOptionsItemSelected(item);
     }
 
+    // **Método para iniciar un nuevo juego**
+    private void iniciarNuevoJuego() {
+        jugando = true;
+
+        configuracion_seleccionada = dc.getSeleccionado();
+        personaje_seleccionado = dp.getSeleccionado();
+
+        rellenaBotones(configuracion_seleccionada.getCasillas());
+        imagen = getResources().getDrawable(personaje_seleccionado.getImagen());
+        tablero = new Tablero(configuracion_seleccionada);
+        tablero.jugar();
+    }
 
     @Override
     public void onClick(View view) {
         // Obtenemos las coordenadas de la celda del texto del botón
-        int x = Integer.parseInt(((Button) view).getText().toString().split(",")[0]);
-        int y = Integer.parseInt(((Button) view).getText().toString().split(",")[1]);
+        String[] coordenadas = ((Button) view).getText().toString().split(",");
+        int x = Integer.parseInt(coordenadas[0]);
+        int y = Integer.parseInt(coordenadas[1]);
 
         int resultado = tablero.compruebaCelda(x, y);
+        Button b = (Button) view;
+        b.setPadding(0, 0, 0, 0);
+
+        switch (resultado) {
+            case -1: // Hay hipotenocha
+                b.setText("X");
+                b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
+                b.setTextColor(Color.BLACK);
+                b.setBackground(imagen);
+                b.setScaleY(-1);
+                finalizarJuegoConDerrota(view);
+                break;
+
+            case 0: // No hay hipotenochas adyacentes
+                b.setBackgroundColor(Color.GRAY);
+                despejaAdyacentes(view, x, y);
+                break;
+
+            default: // Hay hipotenochas adyacentes
+                b.setText(String.valueOf(resultado));
+                b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                b.setTextColor(Color.WHITE);
+                b.setBackgroundColor(Color.GRAY);
+                view.setEnabled(false);
+                break;
+        }
+    }
+
+    @Override
+    public boolean onLongClick(View view) {
+        // Obtenemos las coordenadas de la celda del texto del botón
+        String[] coordenadas = ((Button) view).getText().toString().split(",");
+        int x = Integer.parseInt(coordenadas[0]);
+        int y = Integer.parseInt(coordenadas[1]);
+
+        int resultado = tablero.compruebaCelda(x, y);
+        Button b = (Button) view;
+        b.setPadding(0, 0, 0, 0);
 
         if (resultado == -1) { // Hay hipotenocha
-            // Mostrar hipotenocha muerta
-            Button b = (Button) view;
-            b.setPadding(0, 0, 0, 0);
-            b.setTextColor(Color.BLACK);
-            b.setText("X");
-            b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
-            int hoch = dp.getImagenSeleccionada();
-            Drawable a = getResources().getDrawable(hoch);
-
-            b.setBackground(a);
-            b.setScaleY(-1);
-            // Fin juego
-            TableLayout tl = (TableLayout) view.getParent().getParent();
-            jugando = false;
-            encontradas = 0;
-            deshabilitaTablero(tl);
-        }
-        if (resultado == 0) { // No hay hipotenochas adyacentes
-            Button b = (Button) view;
-            b.setPadding(0, 0, 0, 0);
-            b.setBackgroundColor(Color.GRAY);
-            // Despejar adyacentes con 0
-            despejaAdyacentes(view, x, y);
-        }
-        if (resultado > 0) { // Hay hipotenochas adyacentes
-            Button b = (Button) view;
-            b.setPadding(0, 0, 0, 0);
+            b.setBackground(imagen);
+            encontradas++;
+            if (encontradas == configuracion_seleccionada.getHipos()) {
+                finalizarJuegoConVictoria(view);
+            }
+        } else { // No hay hipotenocha
             b.setText(String.valueOf(resultado));
-            b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            b.setTextSize(20);
             b.setTextColor(Color.WHITE);
             b.setBackgroundColor(Color.GRAY);
             view.setEnabled(false);
+            finalizarJuegoConDerrota(view);
         }
+
+        return true;
     }
 
     /**
@@ -177,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param y    Columna.
      */
     private void despejaAdyacentes(View view, int x, int y) {
-        // Recorremos los botones adyacentes y si también están a cero los despejamos
         for (int xt = -1; xt <= 1; xt++) {
             for (int yt = -1; yt <= 1; yt++) {
                 if (xt != yt) {
@@ -187,23 +207,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         b.setClickable(false);
                         tablero.setPulsadas(x + xt, y + yt);
                         String[] coordenadas = b.getText().toString().split(",");
-                        despejaAdyacentes(b, Integer.parseInt(coordenadas[0]),
-                                Integer.parseInt(coordenadas[1]));
+                        despejaAdyacentes(b, Integer.parseInt(coordenadas[0]), Integer.parseInt(coordenadas[1]));
                     }
                 }
             }
         }
-
     }
 
     private View traerBoton(int x, int y) {
-        Button b = null;
-        // Recorremos la matriz de botones hasta encontrar una coincidencia con las coordenadas
-        // buscadas.
         for (int i = 0; i < tableLayout.getChildCount(); i++) {
             TableRow tr = (TableRow) tableLayout.getChildAt(i);
             for (int j = 0; j < tr.getChildCount(); j++) {
-                b = (Button) tr.getChildAt(j);
+                Button b = (Button) tr.getChildAt(j);
                 if (b.getText().toString().equals(x + "," + y)) {
                     return b;
                 }
@@ -211,49 +226,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return null;
     }
-
-
-    @Override
-    public boolean onLongClick(View view) {
-        // Obtenemos las coordenadas de la celda del texto del botón
-        int x = Integer.parseInt(((Button) view).getText().toString().split(",")[0]);
-        int y = Integer.parseInt(((Button) view).getText().toString().split(",")[1]);
-
-        int resultado = tablero.compruebaCelda(x, y);
-        if (resultado == -1) { // Hay hipotenocha
-            Button b = (Button) view;
-            b.setPadding(0, 0, 0, 0);
-            int hoch = dp.getImagenSeleccionada();
-            Drawable a = getResources().getDrawable(hoch);
-
-            b.setBackground(a);
-            encontradas++;
-            if (encontradas == 10) {
-                TableLayout tl = (TableLayout) view.getParent().getParent();
-                jugando = false;
-                encontradas = 0;
-
-                Toast.makeText(MainActivity.this, "HAS GANADO!!!", Toast.LENGTH_SHORT).show();
-                deshabilitaTablero(tl);
-            }
-        } else { // No hay hipotenocha
-            Button b = (Button) view;
-            b.setText(String.valueOf(resultado));
-            b.setTextSize(20);
-            b.setTextColor(Color.WHITE);
-            b.setBackgroundColor(Color.GRAY);
-            view.setEnabled(false);
-            TableLayout tl = (TableLayout) view.getParent().getParent();
-            jugando = false;
-            encontradas = 0;
-            Toast.makeText(MainActivity.this, "HAS PERDIDO!!!", Toast.LENGTH_SHORT).show();
-            deshabilitaTablero(tl);
-        }
-
-        return true;
-    }
-
-
 
     private void rellenaBotones(int botones) {
         tableLayout = new TableLayout(this);
@@ -271,7 +243,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     TableLayout.LayoutParams.WRAP_CONTENT, 1.0f));
 
             for (int j = 0; j < botones; j++) {
-                tiledBoton = new Button(this);
+                Button tiledBoton = new Button(this);
+                tiledBoton.setWidth(20);
+                tiledBoton.setHeight(20);
                 tiledBoton.setLayoutParams(new TableRow.LayoutParams(
                         TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
                 tiledBoton.setId(View.generateViewId());
@@ -292,7 +266,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void deshabilitaTablero(View view) {
         TableLayout tl = (TableLayout) view;
-        // Recorremos la matriz de botones deshabilitando todos.
         for (int i = 0; i < tl.getChildCount(); i++) {
             TableRow tr = (TableRow) tl.getChildAt(i);
             for (int j = 0; j < tr.getChildCount(); j++) {
@@ -300,6 +273,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 b.setEnabled(false);
             }
         }
+    }
+
+
+    private void finalizarJuegoConVictoria(View view) {
+        TableLayout tl = (TableLayout) view.getParent().getParent();
+        jugando = false;
+        encontradas = 0;
+        Toast.makeText(MainActivity.this, "HAS GANADO!!!", Toast.LENGTH_SHORT).show();
+        deshabilitaTablero(tl);
+    }
+
+    private void finalizarJuegoConDerrota(View view) {
+        TableLayout tl = (TableLayout) view.getParent().getParent();
+        jugando = false;
+        encontradas = 0;
+        Toast.makeText(MainActivity.this, "HAS PERDIDO!!!", Toast.LENGTH_SHORT).show();
+        deshabilitaTablero(tl);
     }
 }
 

@@ -9,29 +9,43 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 
+import com.example.buscahipotenochas.Personaje;
 import com.example.buscahipotenochas.R;
 import com.example.buscahipotenochas.helpers.SpinnerHelper;
 
-public class DialogoPersonaje {
-    Context context;
-    String[] opciones;
-    String seleccionado;
-    int[] imagenes;
-    int imagen_seleccionada;
+import java.util.List;
 
-    public DialogoPersonaje(Context context, String[] opciones, String seleccionado, int[] imagenes)
-    {
+
+public class DialogoPersonaje {
+    private final Context context; // Contexto donde se mostrará el diálogo.
+    private final List<Personaje> personajes; // Lista de personajes disponibles.
+    private Personaje personajeSeleccionado; // Personaje seleccionado.
+    String[] nombresPersonajes;
+    int[] imagenes;
+
+
+    public DialogoPersonaje(Context context, List<Personaje> personajes, Personaje personajeInicial) {
         this.context = context;
-        this.opciones = opciones;
-        this.seleccionado = seleccionado;
-        this.imagenes = imagenes;
+        this.personajes = personajes;
+        this.personajeSeleccionado = personajeInicial; // Personaje inicial.
     }
 
+    /**
+     * Método para mostrar el diálogo de selección de personaje.
+     */
+    public void Show(MenuItem personajeItem){
 
-    public void Show(View mView, MenuItem personajeItem) {
+        nombresPersonajes = new String[personajes.size()];
+        imagenes = new int[personajes.size()];
+
+        for (int i = 0; i < personajes.size(); i++) {
+            Personaje personaje = personajes.get(i);
+            nombresPersonajes[i] = personaje.getNombre();
+            imagenes[i] = personaje.getImagen();
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.personaje_titulo);
 
@@ -42,10 +56,7 @@ public class DialogoPersonaje {
         builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
-                changeIcon(context, personajeItem, imagen_seleccionada);
-
-                Toast.makeText(context, "Seleccionado: " + seleccionado, Toast.LENGTH_SHORT).show();
+                changeIcon(context, personajeItem, personajeSeleccionado.getImagen());
                 dialog.dismiss();
             }
         });
@@ -55,11 +66,11 @@ public class DialogoPersonaje {
 
     private @NonNull Spinner getSpinner() {
         Spinner spinner = new Spinner(context);
-        spinner.setAdapter(new SpinnerHelper(context, opciones, imagenes));
+        spinner.setAdapter(new SpinnerHelper(context, nombresPersonajes, imagenes));
 
         int selectedIndex = 0;
-        for (int i = 0; i < opciones.length; i++) {
-            if (opciones[i].equals(seleccionado)) {
+        for (int i = 0; i < personajes.size(); i++) {
+            if (personajes.get(i).equals(personajeSeleccionado)) {
                 selectedIndex = i;
                 break;
             }
@@ -69,8 +80,7 @@ public class DialogoPersonaje {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                seleccionado = opciones[position];
-                imagen_seleccionada = imagenes[position];
+                personajeSeleccionado = personajes.get(position);
             }
 
             @Override
@@ -80,15 +90,17 @@ public class DialogoPersonaje {
         return spinner;
     }
 
+    /**
+     * Método para obtener el personaje seleccionado.
+     *
+     * @return Personaje seleccionado por el usuario.
+     */
+    public Personaje getSeleccionado() {
+        return personajeSeleccionado;
+    }
 
     public static void changeIcon(Context context, MenuItem item, int seleccionado) {
         item.setIcon(seleccionado);
     }
-
-    public String getSeleccionado(){
-        return this.seleccionado;
-    }
-
-    public int getImagenSeleccionada() {return this.imagen_seleccionada;}
 
 }

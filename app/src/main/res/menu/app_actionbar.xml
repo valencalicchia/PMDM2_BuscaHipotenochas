@@ -16,7 +16,7 @@
 
     <item android:title="@string/menu_personaje"
         android:id="@+id/menu_personaje"
-        android:icon="@drawable/hipo_basico"
+        android:icon="@drawable/hipo_enfermer"
         app:showAsAction="always"/>
 
 </menu>
