@@ -19,10 +19,10 @@ public class SpinnerHelper extends ArrayAdapter<String> {
     int[] spinnerImages;
     Context mContext;
 
-    public SpinnerHelper(@NonNull Context context, String[] titles, int[] images) {
+    public SpinnerHelper(@NonNull Context context, String[] titles, int[] imagenes) {
         super(context, R.layout.spinner_row);
         this.spinnerTitles = titles;
-        this.spinnerImages = images;
+        this.spinnerImages = imagenes;
         this.mContext = context;
     }
 
@@ -39,14 +39,14 @@ public class SpinnerHelper extends ArrayAdapter<String> {
             LayoutInflater mInflater = (LayoutInflater) mContext.
                     getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = mInflater.inflate(R.layout.spinner_row, parent, false);
-            mViewHolder.mFlag = (ImageView) convertView.findViewById(R.id.ivFlag);
-            mViewHolder.mName = (TextView) convertView.findViewById(R.id.tvName);
+            mViewHolder.mFoto = (ImageView) convertView.findViewById(R.id.imagen);
+            mViewHolder.mNombre = (TextView) convertView.findViewById(R.id.nombre);
             convertView.setTag(mViewHolder);
         } else {
             mViewHolder = (ViewHolder) convertView.getTag();
         }
-        //mViewHolder.mFlag.setImageResource(spinnerImages[position]);
-        mViewHolder.mName.setText(spinnerTitles[position]);
+        //mViewHolder.mFoto.setImageResource(spinnerImages[position]);
+        mViewHolder.mNombre.setText(spinnerTitles[position]);
 
         return convertView;
     }
@@ -57,8 +57,7 @@ public class SpinnerHelper extends ArrayAdapter<String> {
     }
 
     private static class ViewHolder {
-        ImageView mFlag;
-        TextView mName;
-        TextView mPopulation;
+        ImageView mFoto;
+        TextView mNombre;
     }
 }

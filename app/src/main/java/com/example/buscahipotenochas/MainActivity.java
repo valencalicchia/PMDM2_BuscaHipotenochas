@@ -4,12 +4,13 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.buscahipotenochas.helpers.SpinnerHelper;
-import com.example.buscahipotenochas.ui.DialogoConfiguracion;
-import com.example.buscahipotenochas.ui.DialogoInstrucciones;
-import com.example.buscahipotenochas.ui.DialogoPersonaje;
+import com.example.buscahipotenochas.ui.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -25,48 +26,43 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
+    private  boolean isUserInteracting = false;
+
     private DialogoInstrucciones di;
     private DialogoPersonaje dp;
     private DialogoConfiguracion dc;
 
-    String[] opciones;
-    String seleccionado;
+    private SpinnerHelper spinnerHelper;
 
-    String[] spinnerTitles;
-    int[] spinnerImages;
+    String config_seleccionado;
+    String personaje_seleccionado;
+    String[] personaje_opciones;
+
+    int[] imagenes;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-
-        opciones = getResources().getStringArray(R.array.config_opciones);
-        seleccionado = opciones[0];
         di = new DialogoInstrucciones(MainActivity.this);
-        dc = new DialogoConfiguracion(MainActivity.this, opciones, seleccionado);
-        dp = new DialogoPersonaje(MainActivity.this);
 
-        spinnerTitles = new String[]{"Australia", "Brazil", "China", "France", "Germany", "India", "Ireland", "Italy", "Mexico", "Poland"};
+        String[] configuracion_opciones = getResources().getStringArray(R.array.config_opciones);
+        config_seleccionado = configuracion_opciones[0];
+        dc = new DialogoConfiguracion(MainActivity.this, configuracion_opciones, config_seleccionado);
 
-        SpinnerHelper mCustomAdapter = new SpinnerHelper(MainActivity.this, spinnerTitles, spinnerImages);
-        mSpinner.setAdapter(mCustomAdapter);
+        personaje_opciones = getResources().getStringArray(R.array.personaje_opciones);
+        personaje_seleccionado = personaje_opciones[0];
+
+        spinnerHelper = new SpinnerHelper(MainActivity.this, personaje_opciones, imagenes);
+
+        dp = new DialogoPersonaje(MainActivity.this, personaje_opciones, personaje_seleccionado, spinnerHelper);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_desplegable, menu);
+        getMenuInflater().inflate(R.menu.app_actionbar, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -86,13 +82,24 @@ public class MainActivity extends AppCompatActivity {
         }
         if(itemId == R.id.menu_nuevo)
         {
-            seleccionado = dc.getSeleccionado();
-            Toast.makeText(MainActivity.this, "Dificultad seleccionada: " + seleccionado, Toast.LENGTH_SHORT).show();
+            config_seleccionado = dc.getSeleccionado();
+            Toast.makeText(MainActivity.this, "Dificultad seleccionada: " + config_seleccionado, Toast.LENGTH_SHORT).show();
+
+            personaje_seleccionado = dp.getSeleccionado();
+            Toast.makeText(MainActivity.this, "Personaje seleccionado: " + personaje_seleccionado, Toast.LENGTH_SHORT).show();
         }
         if(itemId == R.id.menu_personaje)
         {
-
+            View mView = getLayoutInflater().inflate(R.layout.spinner_personaje, null);
+            dp.Show(mView);
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        isUserInteracting = true;
+    }
+
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:title="@string/menu_instrucciones" android:id="@+id/menu_instrucciones"/>
     <item android:title="@string/menu_nuevo" android:id="@+id/menu_nuevo"/>
     <item android:title="@string/menu_config" android:id="@+id/menu_config"/>

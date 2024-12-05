@@ -34,7 +34,6 @@ public class DialogoInstrucciones {
                 dialogInterface.cancel();
             }
         });
-        builder.create();
-        builder.show();
+        builder.create().show();
     }
 }

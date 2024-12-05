@@ -38,13 +38,12 @@ public class DialogoConfiguracion{
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.cancel();
+                dialogInterface.dismiss();
                 Toast.makeText(context, "Dificultad seleccionada: " + seleccionado, Toast.LENGTH_SHORT).show();
             }
         });
 
-        builder.create();
-        builder.show();
+        builder.create().show();
     }
 
     public String getSeleccionado(){
